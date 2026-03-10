@@ -9,7 +9,7 @@ local u8 = encoding.UTF8
 
 if sampev.INTERFACE.INCOMING_RPCS[61][2]['dialogId'] == 'uint16' then
     print('normal sampev, patched.')
-
+    
     sampev.INTERFACE.INCOMING_RPCS[61] = {
         'onShowDialog',
         {dialogId = 'uint16'},
@@ -23,7 +23,7 @@ if sampev.INTERFACE.INCOMING_RPCS[61][2]['dialogId'] == 'uint16' then
 else
     print('old sampev, skip patch onShowDialog')
 end
-
+  
 do
     imgui.SwitchContext()
     local style = imgui.GetStyle()
@@ -69,7 +69,7 @@ do
     colors[clr.ResizeGripActive]     = ImVec4(0.18, 0.35, 0.58, 0.95)
     colors[clr.CloseButton]          = ImVec4(0.20, 0.25, 0.29, 0.60)
     colors[clr.CloseButtonHovered]   = ImVec4(0.25, 0.30, 0.35, 0.80)
-    colors[clr.CloseButtonActive]    = ImVec4(0.30, 0.35, 0.40, 1.00)
+    colors[clr.CloseButtonActive]    = ImVec4(0.30, 0.35, 0.40, 1.00)       
     colors[clr.PlotLines]            = ImVec4(0.61, 0.61, 0.61, 1.00)
     colors[clr.PlotLinesHovered]     = ImVec4(1.00, 0.43, 0.35, 1.00)
     colors[clr.PlotHistogram]        = ImVec4(0.90, 0.70, 0.00, 1.00)
@@ -100,51 +100,51 @@ do
         _help = [[
             Jcfg - модуль для сохранения и загрузки конфигурационных файлов в Lua, используя формат JSON, с поддержкой конфигурации для ImGui.
             Важно: модуль должен быть подключен после всех необходимых `require`.
-
+        
             Использование:
                 - Инициализация модуля:
                     jcfg = Jcfg()
-
+        
                 - Сохранение массива в файл:
                     jcfg.save(table, path)
                     - table: массив, который нужно сохранить.
                     - path: путь для сохранения. Если не указан, сохранение будет в moonloader/config/Имя_скрипта/config.json
-
+        
                 - Загрузка массива из файла:
                     table = jcfg.load(path)
                     - table: переменная, в которую будет загружен массив.
                     - path: путь к файлу для загрузки. Если не указан, будет искать в moonloader/config/Имя_скрипта/config.json
-
+        
                 - Обновление массива данными из файла:
                     jcfg.update(table, path)
                     - table: массив, который нужно обновить данными из файла.
                     - path: путь к файлу для загрузки. Если не указан, будет искать в moonloader/config/Имя_скрипта/config.json
-
+        
                 - Настройка массива для использования с ImGui:
                     imtable = jcfg.setupImgui(table)
                     - table: массив, который будет преобразован для использования с ImGui.
                     - imtable: возвращает массив, готовый к использованию с ImGui.
-
+        
             Пример использования:
-
+        
                 -- Инициализация модуля
                 local jcfg = Jcfg()
-
+        
                 -- Создание конфигурации
                 local cfg = {
                     params = {'123'},
                     param = 12
                 }
-
+        
                 -- Обновление конфигурации данными из файла (если файл существует)
                 jcfg.update(cfg)
-
+        
                 -- Настройка конфигурации для использования с ImGui
                 local imcfg = jcfg.setupImgui(cfg)
-
+        
                 -- Сохранение конфигурации в файл
                 jcfg.save(cfg)
-        ]]
+        ]]                      
     }
 
     function Jcfg.__init()
@@ -154,7 +154,7 @@ do
 
         local function makeDirectory(path)
             assert(type(path) == "string" and path:find('moonloader'), "Path must be a string and include 'moonloader' folder")
-
+            
             path = path:gsub("[\\/][^\\/]+%.json$", "")
 
             if not doesDirectoryExist(path) then
@@ -162,7 +162,7 @@ do
                     return error("Failed to create directory: " .. path)
                 end
             end
-        end
+        end        
 
         local function setupImguiConfig(table)
             assert(type(table) == "table", ("bad argument #1 to 'setupImgui' (table expected, got %s)"):format(type(table)))
@@ -236,7 +236,7 @@ do
             assert(type(table)=="table", ("bad argument #1 to 'update' (table expected, got %s)"):format(type(table)))
             assert(path == nil or (type(path) == "string" and path:match("^.+%.json$")), "Path must be nil or a valid file path ending with '.json'")
             local loadedCfg = self.load(path)
-
+			
 			if loadedCfg then
 				for k, v in pairs(table) do
 					if loadedCfg[k] ~= nil then
@@ -355,7 +355,7 @@ end
         local consumptionPerHour = 0.48
         local remainingHours = percent / consumptionPerHour
         return remainingHours
-    end
+    end    
 
     return self
 end)()
@@ -365,15 +365,6 @@ local work = {
     mode = 1,
     needSkip = false,
     videocardMode = ""
-}
-local autoBot = {
-    enabled = false,      -- Состояние (вкл/выкл)
-    lastRun = 0,          -- Время последнего запуска (в секундах os.clock)
-    interval = 3600,      -- Раз в час (3600 сек)
-    stage = 0,            -- Этап: 0 - спим, 1 - открыли флешку, 2 - зашли в дом
-    currentHouse = 0,     -- Какой по счету дом сейчас обрабатываем
-    maxHouses = 0,        -- Всего домов в списке
-    timer = 0             -- Внутренний таймер для пауз
 }
 
 local imgui_windows = {
@@ -387,8 +378,8 @@ function main()
     repeat wait(0) until isSampAvailable()
     while not isSampLoaded() do wait(0) end
 
-    utils.addChat('{99ff99}Загружен{ffffff}. Команда: {ffa500}/farm')
-
+    utils.addChat('{99ff99}Загружен{ffffff}. Включили или выключить скрипт: {ffa500}/farm')
+    utils.addChat('{99ff99}Загружен{ffffff}. Запустить скрипт через флешку: {ffa500}/flashminer')
     sampRegisterChatCommand('farm', function()
         cfg.on = not cfg.on
         local text = cfg.on and "Скрипт {99ff99}включен{ffffff}." or "Скрипт {ff0000}отключен{ffffff}."
@@ -396,29 +387,11 @@ function main()
         save()
         --imgui_windows.dialog.v = not imgui_windows.dialog.v
     end)
-	sampRegisterChatCommand('autofarm', function()
-        autoBot.enabled = not autoBot.enabled
-        local status = autoBot.enabled and "{99ff99}ВКЛЮЧЕН{ffffff}. Сбор начнется через 10 секунд." or "{ff0000}ВЫКЛЮЧЕН{ffffff}."
-        utils.addChat("Авто-сбор по домам: " .. status)
-        if autoBot.enabled then 
-            autoBot.lastRun = os.clock() - 3590 -- Запустит через 10 секунд после ввода команды
-        end
-    end)
-
+    
 
     while true do wait(0)
-	-- Проверка таймера авто-сбора
-        if autoBot.enabled and not work.on and not imgui_windows.dialog.v then
-            if os.clock() - autoBot.lastRun >= autoBot.interval then
-                autoBot.stage = 1
-                autoBot.currentHouse = 0
-                sampSendChat("/flashminer") -- Твоя команда открытия флешки
-                autoBot.lastRun = os.clock() -- Сбрасываем таймер на час вперед
-            end
-        end
-	
         imgui.Process = imgui_windows.dialog.v
-
+        
         if json_timer[1] then
             if json_timer[2] + 0.125 <= os.clock() then
                 json_timer[2] = os.clock()
@@ -451,7 +424,7 @@ local workLauncher = (function()
                 return v[2]:find("{BEF781}Работает") and true or false
             end
         end,
-
+        
         [2] = function(v) -- checkProfit
             return tonumber(v[2]:match("(%d+)%.%d%d%d%d%d%d")) > 0
         end,
@@ -482,7 +455,7 @@ local w,h = getScreenResolution()
 local window_width,window_height = 233,140
 local imStyle = imgui.GetStyle()
 function imgui.OnDrawFrame()
-
+    
     if imgui_windows.dialog.v then
 
         imgui.SetNextWindowSize(imgui.ImVec2(1000, 600), imgui.Cond.FirstUseEver)
@@ -521,7 +494,7 @@ function imgui.OnDrawFrame()
                 if v[2]:find("На паузе") or tonumber(v[2]:match('(%d+%.%d+)%%')) <= cfg.coolantPercents then
                     needAttention = true
                 end
-
+            
                 -- Обновление суммарного заработка
                 local level = tonumber(v[2]:match("(%d+) уровень"))
                 local earnings = utils.getVideocardEarnings(level)
@@ -538,11 +511,11 @@ function imgui.OnDrawFrame()
 	end
                 avaibleCrypto.btc = avaibleCrypto.btc + tonumber(v[2]:match("(%d+)%.%d%d%d%d%d%d"))
 		summaryAverage.btc = summaryAverage.btc + earnings
-
+            
                 -- Извлечение текущего процента охлаждающей жидкости
                 local cT = tonumber(v[2]:match("(%d+%.%d+)%%"))
                 coolantRestore = (coolantRestore ~= 0) and (cT < coolantRestore and cT or coolantRestore) or cT
-
+            
                 -- Обработка элементов интерфейса imgui
                 if imgui.SelectableEx(v[2], __imDialogData.selectedVideocard == v[1], 0, imgui.ImVec2(0, 15), function()
                     if imgui.IsItemHovered() then
@@ -610,7 +583,7 @@ function imgui.OnDrawFrame()
                     save()
                 end
                 imgui.PopStyleColor()
-
+		
 		imgui.SameLine()
                 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(1.0, 0.6, 0.6, 1.0))
 		if imgui.RadioButton("OFFLINE##multuplyButton", imcfg.multiply, 1) then
@@ -618,7 +591,7 @@ function imgui.OnDrawFrame()
                     save()
                 end
 		imgui.PopStyleColor()
-
+            
 		imgui.EndChild()
 
             imgui.BeginChild('##dialog_child 3', imgui.ImVec2(0, 0), true)
@@ -642,7 +615,7 @@ function imgui.OnDrawFrame()
                     end
                     imgui.PopStyleColor() -- не забываем вернуть цвет обратно
                     imgui.SameLine()
-
+                    
 		imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(1.0, 0.6, 0.6, 1.0))
                     if imgui.Button(u8'Выключить видеокарты', imgui.ImVec2(imgui.GetWindowWidth()/2-imStyle.ItemSpacing.x, 30)) then
                         workLauncher.handleVideocardAction(4, 1, "Все видеокарты выключены.")
@@ -653,7 +626,7 @@ function imgui.OnDrawFrame()
                         workLauncher.handleVideocardAction(1, 2, "Нечего забирать.")
                     end
                     imgui.PopStyleColor() -- не забываем вернуть цвет обратно
-
+                    
 			if imgui.ButtonClickable("Нельзя заливать жидкости через 'Флэшка Майнера'", (__imDialogData.title:find("дом") == nil), u8'Залить охлаждающие жидкости', imgui.ImVec2(imgui.GetWindowWidth()-imStyle.ItemSpacing.x*2, 30)) then
                         workLauncher.handleVideocardAction(2, 3, "Охлаждение не требуется.")
                     end
@@ -755,7 +728,7 @@ function imgui.customCloseButton(label, size)
     imgui.PushStyleColor(imgui.Col.Text, oldTextColor)
 
     local clicked = imgui.Button(label, size)
-
+    
     imgui.PopStyleColor(4)
 
     return clicked
@@ -901,7 +874,7 @@ function _settingsPopup()
         if imgui.Button(u8'Закрыть##declinePopup', imgui.ImVec2(100, 50)) then
             imgui.CloseCurrentPopup()
         end
-
+    
         imgui.EndPopup()
     end
 end
@@ -918,35 +891,6 @@ local cryptoAnalysys = {
 }
 
 function sampev.onShowDialog(id, style, title, button1, button2, text, placeholder)
-    -- [1. ЛОГИКА АВТО-ОБХОДА ДОМОВ]
-    if autoBot.enabled and autoBot.stage > 0 then
-        -- Проверяем заголовок (подходит для "Выберите дом" или "Список ваших домов")
-        if title:find("дом") or title:find("Дома") then
-            local houses = {}
-            for line in text:gmatch("[^\r\n]+") do
-                if line:find("№") then table.insert(houses, line) end
-            end
-            autoBot.maxHouses = #houses
-
-            if autoBot.currentHouse < autoBot.maxHouses then
-                local clickIdx = autoBot.currentHouse
-                autoBot.currentHouse = autoBot.currentHouse + 1
-                autoBot.stage = 2 -- Переходим к чистке видеокарт
-                
-                lua_thread.create(function()
-                    wait(1000)
-                    sampSendDialogResponse(id, 1, clickIdx, "")
-                end)
-                return false -- Скрываем меню домов
-            else
-                autoBot.stage = 0
-                utils.addChat("{99ff99}[AutoBot]{ffffff} Все дома проверены!")
-                sampSendDialogResponse(id, 0, 0, "")
-                return false
-            end
-        end
-    end
-    -- [2. ТВОЯ ОРИГИНАЛЬНАЯ ЛОГИКА ПАРСИНГА]
     if needReturnToMainWindow then
         local a = title:gsub("%-","")
         if a:find("{BFBBBA}Стойка №%d+ | Полка №%d+") or a:find("{BFBBBA}Выберите тип жидкости") then
@@ -963,7 +907,10 @@ function sampev.onShowDialog(id, style, title, button1, button2, text, placehold
         __imDialogData.selectedVideocard = -1
 
         local listboxId = -1
+
+        --Полка №1 | {BEF781}Работает	2.44447 BTC	7 уровень	91.37%
         for line in text:gmatch("[^\r\n]+") do
+
             if line:find("^Полка") then
                 local insertText = (line:find("Работает") and line:gsub("Работает", "Работает{ffffff}") or line:gsub("На паузе", "На паузе{ffffff}")):gsub("Полка №%d+", "Видеокарта №"..(#__imDialogData.videocards+1))
                 local properDetect = line:match("(%d+%.%d+)%%?%s*$")
@@ -972,22 +919,30 @@ function sampev.onShowDialog(id, style, title, button1, button2, text, placehold
                 elseif properDetect then
                     insertText = insertText:gsub("(%d+%.%d+)%%?%s*$", "{99ff99}%1%%")
                 end
-                insertText = insertText:gsub("(%d+%.%d+%s+BTC)", "{ffcc00}%1{ffffff}"):gsub("(%d+%.%d+%s+ASC)", "{ffa500}%1{ffffff}")
-
-                table.insert(__imDialogData.videocards, {listboxId, insertText})
+                insertText = insertText:gsub("(%d+%.%d+%s+BTC)", "{99ff99}%1{ffffff}"):gsub("(%d+%.%d+%s+ASC)", "{ffa500}%1{ffffff}")
+                
+                table.insert(__imDialogData.videocards, {
+                    listboxId,
+                    insertText
+                })
                 __imDialogData.selectedVideocard = __imDialogData.selectedVideocard==-1 and listboxId or __imDialogData.selectedVideocard
             end
+
             listboxId = listboxId+1
+
         end
+
         imgui_windows.dialog.v = true
-        if not work.on then return false end
+
+        if not work.on then
+            return false
+        end
     else
         if not work.on then imgui_windows.dialog.v = false end
     end
 
     if not work.on then return end
 
-    -- Вспомогательные функции
     local function deactivateScript(message, needOff)
         if needOff then imgui_windows.dialog.v = false end
         work.on = false
@@ -1005,36 +960,24 @@ function sampev.onShowDialog(id, style, title, button1, button2, text, placehold
         return false
     end
 
-    -- [3. РЕЖИМ СБОРА ПРИБЫЛИ]
     if work.mode == 1 then
         if title:find('{BFBBBA}Выберите видеокарту') then
             if not text:find('%d+%.%d%d%d%d%d%d') then
                 deactivateScript("Ошибка! Код 1.")
                 return
             end
-
+    
             if not findLineAndRespond('%d+%.%d%d%d%d%d%d', function(line)
                 return tonumber(line:match("(%d+)%.%d%d%d%d%d%d")) > 0
             end, -1) then
-                
-                -- ИТОГИ В ТЕКУЩЕМ ДОМЕ
+                deactivateScript("Криптовалюта не найдена.")
                 if cryptoAnalysys.btc > 0 or cryptoAnalysys.asc > 0 then
-                    utils.addChat("Забрали в этом доме: {99ff99}"..cryptoAnalysys.btc.." BTC {ffffff}| {ffa500}"..cryptoAnalysys.asc..' ASC{ffffff}.')
+                    utils.addChat("Забрали: {99ff99}"..cryptoAnalysys.btc.." BTC {ffffff}| {ffa500}"..cryptoAnalysys.asc..' ASC{ffffff}.')
                     cryptoAnalysys.btc = 0
                     cryptoAnalysys.asc = 0
                 end
-
-                -- ПЕРЕХОД К СЛЕДУЮЩЕМУ ДОМУ
-                if autoBot.enabled and autoBot.stage == 2 then
-                    lua_thread.create(function()
-                        wait(1200)
-                        sampSendChat("/flashminer") 
-                    end)
-                else
-                    deactivateScript("Криптовалюта не найдена.")
-                end
-            end -- ЭТОТ END ТЫ ПРОПУСТИЛ
-
+            end
+    
         elseif title:gsub("%-",""):find("{BFBBBA}Стойка №%d+ | Полка №%d+") then
             if not findLineAndRespond('%d+%.%d%d%d%d%d%d', function(line)
                 return tonumber(line:match("(%d+)%.%d%d%d%d%d%d")) > 0
@@ -1044,17 +987,14 @@ function sampev.onShowDialog(id, style, title, button1, button2, text, placehold
         elseif title:find('{BFBBBA}Вывод прибыли видеокарты') then
             sampSendDialogResponsed(id, 1)
         end
-    end
-    -- [ОСТАЛЬНЫЕ РЕЖИМЫ (Mode 2, 3, 4) ДОЛЖНЫ ИДТИ НИЖЕ]
-end
 
     elseif work.mode == 2 then
 
         if title:find('{BFBBBA}Выберите видеокарту') then
-            if title:find('%(дом') then
-                deactivateScript("Режим охлаждения работает только в ручном режиме. Не в /flashminer. Скрипт деактивирован.", true)
-                return
-            end
+            if title:find('%(дом') then 
+                deactivateScript("Режим охлаждения работает только в ручном режиме. Не в /flashminer. Скрипт деактивирован.", true) 
+                return 
+            end            
 
             if not text:find("(%d+%.%d+)%%?%s*$") then
                 deactivateScript("Охлаждение не нужно. 1")
@@ -1102,7 +1042,7 @@ end
 
     elseif work.mode == 3 or work.mode == 4 then
 
-        if title:find('{BFBBBA}Выберите видеокарту') then
+        if title:find('{BFBBBA}Выберите видеокарту') then           
 
             if not findLineAndRespond(work.mode==3 and "{F78181}На паузе" or "{BEF781}Работает", function(line)
                 return tonumber(line:match("(%d+%.%d+)%%?%s*$")) > 0
@@ -1127,7 +1067,7 @@ function sampev.onServerMessage(color, text)
             cryptoAnalysys.asc = cryptoAnalysys.asc + tonumber(text:match("Вы вывели {ffffff}(%d+)"))
         end
         return false
-    elseif text:find("^Вам был добавлен предмет") and (text:find("BTC") or text:find("ASC")) then
+    elseif text:find("^Вам был добавлен предмет") then
         return false
     elseif text:find("^%[Ошибка%] {ffffff}Чтобы запустить видеокарту в работу") then
         work.on = false
@@ -1135,7 +1075,7 @@ function sampev.onServerMessage(color, text)
     end
 end
 
-sampSendDialogResponsed = function(dialogId, button, list, text)
+sampSendDialogResponsed = function(dialogId, button, list, text) 
     json_timer = {true, json_timer[2], dialogId, button, list, text}
 end
 
@@ -1149,7 +1089,7 @@ local function findCardIndexById(videocards, id)
 end
 function onWindowMessage(msg, wparam, lparam)
     if not work.on and imgui_windows.dialog.v and not isPauseMenuActive() then
-        if msg == 0x101 or msg == 0x100 then
+        if msg == 0x101 or msg == 0x100 then 
             if msg == 0x101 and wparam == 0x1B then
                 consumeWindowMessage(true, false)
                 __closeWindow(false)
@@ -1178,7 +1118,7 @@ function onWindowMessage(msg, wparam, lparam)
                         end
                         __imDialogData.selectedVideocard = __imDialogData.videocards[currentIndex][1]
                     end
-                end
+                end               
             end
         end
     end
